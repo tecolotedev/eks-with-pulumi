@@ -1,5 +1,12 @@
+## Limit pods per instance 
+https://github.com/awslabs/amazon-eks-ami/blob/master/files/eni-max-pods.txt
 
 ## Usefull commands
+**Update Kubectl**
+```bash
+aws eks update-kubeconfig --region us-east-1 --name eksctl-test 
+```
+
 ```bash
 kubectl get all #Get all resources in the cluster
 kubectl apply -f nginx-deployment-withrolling.yaml #Creates a deployment with the file 
@@ -16,6 +23,16 @@ kubectl delete rs testdeploy-6c69b6bd77 #Deletes a replica set
 kubectl describe pods #Describes advanced data of pods
 kubectl describe deployment #Describes starte of deployment
 kubectl get rs --watch #If we add "--watch" argument it will refresh the output on every change
+
+# inside the master node
+kubectl get ns #get namespaces 
+# NAME              STATUS   AGE
+# default           Active   19m
+# kube-node-lease   Active   19m
+# kube-public       Active   19m
+# kube-system       Active   19m
+kubectl get pods -n kube-system #get pods of kube-system
+
 ```
 
 
