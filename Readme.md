@@ -17,4 +17,24 @@ kubectl describe pods #Describes advanced data of pods
 kubectl describe deployment #Describes starte of deployment
 kubectl get rs --watch #If we add "--watch" argument it will refresh the output on every change
 ```
-.
+
+
+**Create EKS cluster with eksctl**
+```bash
+eksctl create cluster --name eksctl-test --nodegroup-name ng-default --node-type t3.micro --nodes 2
+```
+
+**Create EKS cluster with yaml file**
+```bash
+eksctl create cluster --config-file=eksctl-create-cluster.yaml
+```
+
+**Update NodeGroup with eksctl and yaml file**
+```bash
+eks create nodegroup --config-file=eksctl-create-ng.yaml
+```
+
+**Delete EKS cluster**
+```bash
+eksctl delete cluster --name eksctl-test 
+```
