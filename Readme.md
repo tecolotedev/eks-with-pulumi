@@ -55,3 +55,39 @@ eks create nodegroup --config-file=eksctl-create-ng.yaml
 ```bash
 eksctl delete cluster --name eksctl-test 
 ```
+
+# Deployment 
+## EC2 Manually
+**Use Nginx**
+Intall nginx
+```bash
+sudo yum install nginx
+```
+
+modify server config in  /etc/nginx/nginx.conf file
+```bash
+server {
+    listen       80;
+    listen       [::]:80;
+    server_name  _;
+    location / {
+        proxy_pass http://localhost:8000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+    }
+
+    # Load configuration files for the default server block.
+    include /etc/nginx/default.d/*.conf;
+}
+```
+
+**Run using pm2, uvicorn and gunicorn**
+install node and npm
+```bash
+sudo yum install nodejs
+```
+run with pm2 gunicorn and vunicorn
+```bash
+pm2 start "gunicorn -w 4 -k uvicorn.workers.UvicornWorker app:app" --name hello_world
+```
