@@ -82,6 +82,11 @@ server {
 }
 ```
 
+restart nginx server
+```bash
+sudo service nginx restart
+```
+
 **Run using pm2, uvicorn and gunicorn**
 install node and npm
 ```bash
@@ -90,4 +95,72 @@ sudo yum install nodejs
 run with pm2 gunicorn and vunicorn
 ```bash
 pm2 start "gunicorn -w 4 -k uvicorn.workers.UvicornWorker app:app" --name hello_world
+```
+
+## Docker
+Get access to ECR
+```bash
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com
+```
+
+build image
+**Linux**
+```bash
+docker build -t fastapi-docker .
+```
+**Mac with M1 chip**
+```bash
+docker buildx build --platform=linux/amd64 -t fastapi-docker .
+```
+transform to a valid image name
+```bash
+docker tag fastapi-docker:latest <AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/fastapi-docker:latest
+```
+sent image to ECR
+```bash
+docker push <AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/fastapi-docker:latest
+```
+Install docker on ec2
+```bash
+sudo yum install docker
+```
+Run docker
+```bash
+sudo service docker start
+```
+Get access to ECR from instance 
+```bash
+aws ecr get-login-password --region us-east-1 | sudo docker login --username AWS --password-stdin <AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com
+```
+Get image from ECR
+```bash
+sudo docker pull <AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/fastapi-docker
+```
+
+Run Docker on port 80 without nginx
+```bash
+sudo docker run -p 80:8000 <AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/fastapi-docker:latest
+```
+
+
+**Extra: You can have a load balancer with nginx with many app running at the same time**
+
+```bash
+upstream api {
+    server localhost:8000;
+    server localhost:8001;
+    server localhost:8002;
+}
+
+server {
+    listen       80;
+    listen       [::]:80;
+    server_name  _;
+    location / {
+        proxy_pass http://api;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+    }
+}
 ```
